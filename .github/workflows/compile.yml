@@ -4,17 +4,19 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.x'
 
-    - name: Restore NuGet Packages
-      run: msbuild Project.csproj -t:restore
+    - name: Download Dependency References
+      run: |
+        dotnet restore Project.csproj
 
     - name: Compile Mod Solution
-      run: msbuild Project.csproj /p:Configuration=Release /p:OutputPath=./build
-      shell: cmd
+      run: dotnet build Project.csproj -c Release -o ./build
 
     - name: Upload Finished Mod
       uses: actions/upload-artifact@v4
