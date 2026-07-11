@@ -6,32 +6,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
 
-    - name: Create C# Project Configuration
-      run: |
-        echo ^<Project Sdk="Microsoft.NET.Sdk"^^> > Project.csproj
-        echo   ^<PropertyGroup^^> >> Project.csproj
-        echo     ^<TargetFramework^^>net472^</TargetFramework^^> >> Project.csproj
-        echo     ^<ImplicitUsings^^>enable^</ImplicitUsings^^> >> Project.csproj
-        echo     ^<Nullable^^>enable^</Nullable^^> >> Project.csproj
-        echo   ^</PropertyGroup^^> >> Project.csproj
-        echo   ^<ItemGroup^^> >> Project.csproj
-        echo     ^<PackageReference Include="LavaGang.MelonLoader" Version="0.6.1" /^^> >> Project.csproj
-        echo     ^<Reference Include="UnityEngine.CoreModule"^^> >> Project.csproj
-        echo       ^<HintPath^^>$(MelonLoader_Assemblies)\UnityEngine.CoreModule.dll^</HintPath^^> >> Project.csproj
-        echo     ^</Reference^^> >> Project.csproj
-        echo   ^</ItemGroup^^> >> Project.csproj
-        echo ^</Project^^> >> Project.csproj
-      shell: cmd
+    - name: Restore NuGet Packages
+      run: msbuild Project.csproj -t:restore
 
-    - name: Restore and Build Mod Solution
+    - name: Compile Mod Solution
       run: msbuild Project.csproj /p:Configuration=Release /p:OutputPath=./build
       shell: cmd
 
@@ -39,4 +20,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Compiled-Mod
-        path: ./build/Project.dll
+        path: ./build/
