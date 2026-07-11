@@ -5,15 +5,17 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
+
     - name: Download Ref References
       run: |
         Invoke-WebRequest -Uri "https://github.com" -OutFile "refs.zip"
+      shell: powershell
+
     - name: Compile DLL
-      run: csc /target:library /out:StandaloneAIFBT.dll Mod.cs
-    - name: Upload Finished Mod
-      uses: actions/upload-artifact@v4
-      with:
-        name: Compiled-Mod
-        path: StandaloneAIFBT.dll
+      run: |
+        csc /target:library /out:StandaloneAIFBT.dll Mod.cs
+      shell: cmd
+
