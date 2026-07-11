@@ -5,6 +5,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LavaGang.MelonLoader" Version="0.6.1" />
+    <Reference Include="MelonLoader">
+      <HintPath>$(MSBuildProjectDirectory)\refs\MelonLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSLZ.Marrow">
+      <HintPath>$(MSBuildProjectDirectory)\refs\Il2CppSLZ.Marrow.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(MSBuildProjectDirectory)\refs\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
