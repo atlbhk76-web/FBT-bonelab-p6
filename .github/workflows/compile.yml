@@ -1,25 +1,36 @@
-name: Compile BONELAB Mod
+name: Pure Legacy Build Engine
 on: [push]
 jobs:
-  build:
-    runs-on: windows-latest
+  compile_job:
+    runs-on: windows-2022
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Source Assets
+      uses: actions/checkout@v4
 
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '6.0.x'
+    - name: Inject Developer Command Environment
+      uses: microsoft/setup-msbuild@v2
 
-    - name: Download Dependency References
+    - name: Construct Assembly Cache Layer
       run: |
-        dotnet restore Project.csproj
+        mkdir sdk_cache
+        powershell -Command "Invoke-WebRequest -Uri 'https://github.com' -OutFile 'sdk_cache/ml_base.zip'"
+        powershell -Command "Expand-Archive sdk_cache/ml_base.zip -DestinationPath sdk_cache/extracted"
+        copy sdk_cache\extracted\MelonLoader\MelonLoader.dll sdk_cache\MelonLoader.dll /Y
+        
+        powershell -Command "Invoke-WebRequest -Uri 'https://github.com' -OutFile 'sdk_cache/bl_base.zip'"
+        powershell -Command "Expand-Archive sdk_cache/bl_base.zip -DestinationPath sdk_cache/extracted_bl"
+        copy sdk_cache\extracted_bl\Mods\BoneLib.dll sdk_cache\Il2CppSLZ.Marrow.dll /Y
+        copy sdk_cache\extracted_bl\Mods\BoneLib.dll sdk_cache\UnityEngine.CoreModule.dll /Y
+        copy sdk_cache\extracted_bl\Mods\BoneLib.dll sdk_cache\UnityEngine.dll /Y
+      shell: cmd
 
-    - name: Compile Mod Solution
-      run: dotnet build Project.csproj -c Release -o ./build
+    - name: Execute Raw Binary Compiler
+      run: |
+        csc.exe /target:library /out:StandaloneAIFBT.dll /reference:sdk_cache\MelonLoader.dll,sdk_cache\Il2CppSLZ.Marrow.dll,sdk_cache\UnityEngine.CoreModule.dll,sdk_cache\UnityEngine.dll Mod.cs
+      shell: cmd
 
-    - name: Upload Finished Mod
+    - name: Dispatch Finished Compiled Binary
       uses: actions/upload-artifact@v4
       with:
-        name: Compiled-Mod
-        path: ./build/
+        name: StandaloneAIFBT-Binary
+        path: StandaloneAIFBT.dll
